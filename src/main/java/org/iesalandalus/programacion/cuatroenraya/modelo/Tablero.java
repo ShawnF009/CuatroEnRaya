@@ -103,7 +103,7 @@ public class Tablero {
         return objetivoAlcanzado(racha);
     }
 
-    private boolean comprobarVertical(int columna, Ficha ficha) throws CuatroEnRayaExcepcion {
+    private boolean comprobarVertical(int columna, Ficha ficha){
         int racha = 0;
 
         for (int i = 0; i < FILAS && !objetivoAlcanzado(racha); i++){
@@ -117,7 +117,7 @@ public class Tablero {
         return objetivoAlcanzado(racha);
     }
 
-    private boolean comprobarDiagonalNE(int filaActual, int columnaActual, Ficha ficha) throws CuatroEnRayaExcepcion {
+    private boolean comprobarDiagonalNE(int filaActual, int columnaActual, Ficha ficha) {
 
         int racha = 0;
         int desplazamiento = menor(filaActual, columnaActual);
@@ -132,7 +132,7 @@ public class Tablero {
         }
         return objetivoAlcanzado(racha);
     }
-    private boolean comprobarDiagonalNO(int filaActual, int columnaActual, Ficha ficha) throws CuatroEnRayaExcepcion {
+    private boolean comprobarDiagonalNO(int filaActual, int columnaActual, Ficha ficha) {
 
         int racha = 0;
         int desplazamiento = menor(filaActual, COLUMNAS - columnaActual - 1);
@@ -160,7 +160,7 @@ public class Tablero {
         return menor;
     }
 
-    private boolean comprobarTirada(int fila, int columna) throws CuatroEnRayaExcepcion {
+    private boolean comprobarTirada(int fila, int columna) {
         return (comprobarHorizontal(fila, casillas[fila][columna].getFicha()) || comprobarVertical(columna, casillas[fila][columna].getFicha()) ||  comprobarDiagonalNE(fila,columna, casillas[fila][columna].getFicha()) || comprobarDiagonalNO(fila,columna, casillas[fila][columna].getFicha()));
     }
 
