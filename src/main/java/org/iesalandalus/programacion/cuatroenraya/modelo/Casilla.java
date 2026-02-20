@@ -12,7 +12,7 @@ public class Casilla {
     public Ficha getFicha(){
         return this.ficha;
     }
-    public void setFicha(Ficha ficha){
+    public void setFicha(Ficha ficha) throws CuatroEnRayaExcepcion {
         Objects.requireNonNull(ficha,"No se puede poner una ficha nula.");
         if (estaOcupada()){
             this.ficha = ficha;
@@ -20,7 +20,7 @@ public class Casilla {
             throw new CuatroEnRayaExcepcion("La casilla ya contiene una ficha.");
         }
     }
-    public boolean estaOcupada()throws CuatroEnRayaExcepcion{
+    public boolean estaOcupada(){
         return ficha == null;
     }
 

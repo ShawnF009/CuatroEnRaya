@@ -6,136 +6,190 @@ public class Tablero {
     public static final int FILAS = 6;
     public static final int COLUMNAS = 7;
     public static final int FICHAS_IGUALES_CONSECUTIVAS_NECESARIAS = 4;
-    private Casilla[][] casillas;
+    public Casilla[][] casillas;
 
     public Tablero() {
         casillas = new Casilla[FILAS][COLUMNAS];
-        for (int i = 0; i < FILAS; i++) {
-            for (int j = 0; j < COLUMNAS; j++) {
+
+        for (int i = 0; i < FILAS; i++){
+            for (int j = 0; j < COLUMNAS; j++){
                 casillas[i][j] = new Casilla();
             }
         }
     }
 
-    public boolean estaVacio() {
-        for (int j = 0; j < COLUMNAS; j++) {
-            if (!columnaVacia(j)) return false;
-        }
-        return true;
-    }
-
     private boolean columnaVacia(int columna) {
-        return !casillas[0][columna].estaOcupada();
+        return !(casillas[0][columna].estaOcupada());
     }
 
-    public boolean estaLleno() {
-        for (int j = 0; j < COLUMNAS; j++) {
-            if (!columnaLlena(j)) return false;
+    public boolean estaVacio() {
+        int vacios = 0;
+
+        for (int i = 0; i < COLUMNAS; i++){
+            if (columnaVacia(i)){
+                vacios++;
+            }
         }
-        return true;
+
+        return (vacios == COLUMNAS);
     }
 
-    public boolean columnaLlena(int columna) {
-        return casillas[FILAS - 1][columna].estaOcupada();
+    private boolean columnaLlena(int columna) {
+        return casillas[FILAS-1][columna].estaOcupada();
     }
 
-    public boolean introducirFicha(int columna, Ficha ficha) throws CuatroEnRayaExcepcion {
-        comprobarColumna(columna);
-        comprobarFicha(ficha);
-        if (columnaLlena(columna)) {
-            throw new CuatroEnRayaExcepcion("La columna estÃ¡ llena.");
+    public boolean estaLleno()  {
+        int llenos = 0;
+
+        for (int i = 0; i < COLUMNAS; i++){
+            if (columnaLlena(i)){
+                llenos++;
+            }
         }
-        int fila = getPrimeraFilaVacia(columna);
-        casillas[fila][columna].setFicha(ficha);
-        return comprobarTirada(fila, columna, ficha);
+
+        return (llenos == COLUMNAS);
     }
 
-    private void comprobarFicha(Ficha ficha) {
+    private void comprobarFicha(Ficha ficha){
         Objects.requireNonNull(ficha, "La ficha no puede ser nula.");
     }
 
-    private void comprobarColumna(int columna) {
-        if (columna < 0 || columna >= COLUMNAS) {
+    private void comprobarColumna(int columna){
+        if (columna < 0 || columna >= COLUMNAS){
             throw new IllegalArgumentException("Columna incorrecta.");
         }
     }
 
-    private int getPrimeraFilaVacia(int columna) {
-        for (int i = 0; i < FILAS; i++) {
-            if (!casillas[i][columna].estaOcupada()) return i;
+    private int getPrimeraFila(int columna)  {
+        int i = -1;
+
+        do {
+            i++;
+        } while (casillas[i][columna].estaOcupada());
+
+        return i;
+    }
+
+    public boolean introducirFicha(int columna,Ficha ficha) throws CuatroEnRayaExcepcion {
+        comprobarColumna(columna);
+        comprobarFicha(ficha);
+
+        if(columnaLlena(columna)){
+            throw new CuatroEnRayaExcepcion("Columna llena.");
         }
-        return -1;
+
+        int fila = getPrimeraFila(columna);
+
+        casillas[fila][columna].setFicha(ficha);
+
+        return comprobarTirada(fila,columna);
     }
 
-    private boolean comprobarTirada(int fila, int columna, Ficha ficha) {
-        return comprobarHorizontal(fila, ficha) ||
-                comprobarVertical(columna, ficha) ||
-                comprobarDiagonalNE(fila, columna, ficha) ||
-                comprobarDiagonalNO(fila, columna, ficha);
-    }
-
-    private boolean objetivoAlcanzado(int contador) {
-        return contador >= FICHAS_IGUALES_CONSECUTIVAS_NECESARIAS;
+    private boolean objetivoAlcanzado(int fichasIgualesConsecutivas){
+        return (fichasIgualesConsecutivas >= FICHAS_IGUALES_CONSECUTIVAS_NECESARIAS);
     }
 
     private boolean comprobarHorizontal(int fila, Ficha ficha) {
-        int contador = 0;
-        for (int j = 0; j < COLUMNAS; j++) {
-            contador = (casillas[fila][j].getFicha() == ficha) ? contador + 1 : 0;
-            if (objetivoAlcanzado(contador)) return true;
+        int racha = 0;
+
+        for (int i = 0; i < COLUMNAS && !objetivoAlcanzado(racha); i++){
+            if (casillas[fila][i].estaOcupada() && ficha.equals(casillas[fila][i].getFicha())){
+                racha++;
+            } else {
+                racha = 0;
+            }
         }
-        return false;
+
+        return objetivoAlcanzado(racha);
     }
 
-    private boolean comprobarVertical(int columna, Ficha ficha) {
-        int contador = 0;
-        for (int i = 0; i < FILAS; i++) {
-            contador = (casillas[i][columna].getFicha() == ficha) ? contador + 1 : 0;
-            if (objetivoAlcanzado(contador)) return true;
+    private boolean comprobarVertical(int columna, Ficha ficha) throws CuatroEnRayaExcepcion {
+        int racha = 0;
+
+        for (int i = 0; i < FILAS && !objetivoAlcanzado(racha); i++){
+            if (casillas[i][columna].estaOcupada() && ficha.equals(casillas[i][columna].getFicha())){
+                racha++;
+            } else {
+                racha = 0;
+            }
         }
-        return false;
+
+        return objetivoAlcanzado(racha);
     }
 
-    private boolean comprobarDiagonalNE(int fila, int columna, Ficha ficha) {
-        int desplazamiento = menor(fila, columna);
-        int f = fila - desplazamiento;
-        int c = columna - desplazamiento;
-        int contador = 0;
-        while (f < FILAS && c < COLUMNAS) {
-            contador = (casillas[f][c].getFicha() == ficha) ? contador + 1 : 0;
-            if (objetivoAlcanzado(contador)) return true;
-            f++; c++;
+    private boolean comprobarDiagonalNE(int filaActual, int columnaActual, Ficha ficha) throws CuatroEnRayaExcepcion {
+
+        int racha = 0;
+        int desplazamiento = menor(filaActual, columnaActual);
+        int filaInicial = filaActual - desplazamiento;
+        int columnaInicial = columnaActual - desplazamiento;
+        for (int i = filaInicial, j = columnaInicial; !objetivoAlcanzado(racha) && i < FILAS && j < COLUMNAS; i++, j++) {
+            if (casillas[i][j].estaOcupada() && ficha.equals(casillas[i][j].getFicha())) {
+                racha++;
+            } else{
+                racha = 0;
+            }
         }
-        return false;
+        return objetivoAlcanzado(racha);
+    }
+    private boolean comprobarDiagonalNO(int filaActual, int columnaActual, Ficha ficha) throws CuatroEnRayaExcepcion {
+
+        int racha = 0;
+        int desplazamiento = menor(filaActual, COLUMNAS - columnaActual - 1);
+        int filaInicial = filaActual - desplazamiento;
+        int columnaInicial = columnaActual + desplazamiento;
+        for (int i = filaInicial, j = columnaInicial; !objetivoAlcanzado(racha) && i < FILAS && j >= 0; i++, j--) {
+            if (casillas[i][j].estaOcupada() && ficha.equals(casillas[i][j].getFicha())) {
+                racha++;
+            } else{
+                racha = 0;
+            }
+        }
+        return objetivoAlcanzado(racha);
     }
 
-    private boolean comprobarDiagonalNO(int fila, int columna, Ficha ficha) {
-        int desplazamiento = menor(fila, COLUMNAS - 1 - columna);
-        int f = fila - desplazamiento;
-        int c = columna + desplazamiento;
-        int contador = 0;
-        while (f < FILAS && c >= 0) {
-            contador = (casillas[f][c].getFicha() == ficha) ? contador + 1 : 0;
-            if (objetivoAlcanzado(contador)) return true;
-            f++; c--;
+    private int menor(int fila,int columna){
+        int menor;
+
+        if (fila < columna){
+            menor = fila;
+        } else {
+            menor = columna;
         }
-        return false;
+
+        return menor;
     }
 
-    private int menor(int a, int b) {
-        return Math.min(a, b);
+    private boolean comprobarTirada(int fila, int columna) throws CuatroEnRayaExcepcion {
+        return (comprobarHorizontal(fila, casillas[fila][columna].getFicha()) || comprobarVertical(columna, casillas[fila][columna].getFicha()) ||  comprobarDiagonalNE(fila,columna, casillas[fila][columna].getFicha()) || comprobarDiagonalNO(fila,columna, casillas[fila][columna].getFicha()));
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = FILAS - 1; i >= 0; i--) {
-            sb.append("|");
-            for (int j = 0; j < COLUMNAS; j++) {
-                sb.append(casillas[i][j]);
+        String fila = "|" ;
+
+
+        StringBuilder tableroSB = new StringBuilder();
+
+        for (int j = FILAS-1; j >= 0; j--) {
+            tableroSB.append(fila);
+            for (int i = 0; i < COLUMNAS; i++) {
+                tableroSB.append(casillas[j][i].toString());
             }
-            sb.append("|\n");
+            tableroSB.append(fila);
+            tableroSB.append("\n");
         }
-        return sb.toString();
+
+        tableroSB.append(" ");
+
+        for (int i = 0; i < COLUMNAS; i++) {
+            tableroSB.append("-");
+        }
+
+        tableroSB.append("\n");
+
+        System.out.println(tableroSB);
+
+        return tableroSB.toString();
     }
 }
