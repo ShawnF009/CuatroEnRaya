@@ -5,5 +5,8 @@ public enum Ficha {
     VERDE;
 
     @Override
-    public String toString() {return name().substring(0,1);}
+    public String toString() {
+        return name().substring(0,1);
+    }
 }
+
